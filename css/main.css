@@ -17,7 +17,6 @@ body {
   box-sizing: border-box;
 }
 
-
 #gameOverBanner {
   position: absolute;
   top: 50%;
@@ -38,6 +37,25 @@ body {
   text-align: center;
 }
 
+.title {
+  font-size: 20px;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.titles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-direction: column;
+}
+.kitze {
+  color: white;
+  font-size: 9px;
+  margin-bottom: 10px;
+  text-decoration: none !important;
+}
 #gameContainer {
   display: flex;
   flex-direction: column;
@@ -58,7 +76,8 @@ body {
 
 
 canvas {
-  border: 1px solid #fff;
+  border: 1px solid #9c9c9c;
+
 }
 
 #controls {

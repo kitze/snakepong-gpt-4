@@ -22,7 +22,7 @@ function createObstacle() {
   const obstacle = {
     x: Math.floor(Math.random() * (canvas.width / 10)) * 10,
     y: Math.floor(Math.random() * (canvas.height / 10)) * 10,
-    type: Math.random() > 0.5 ? "bomb" : "ramp",
+    type: "bomb",
   };
 
   obstacles.push(obstacle);
@@ -30,7 +30,7 @@ function createObstacle() {
 
 function drawObstacles() {
   obstacles.forEach((obstacle) => {
-    ctx.fillStyle = obstacle.type === "bomb" ? "red" : "blue";
+    ctx.fillStyle = "red";
     ctx.fillRect(obstacle.x, obstacle.y, 10, 10);
   });
 }
@@ -252,15 +252,34 @@ const W_KEY = 87;
 const D_KEY = 68;
 const S_KEY = 83;
 
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth - padding * 2;
-  canvas.height = Math.min(window.innerHeight - padding * 2, 400);
-});
+function resizeCanvas() {
+  const canvas = document.getElementById('gameCanvas');
+  const container = document.getElementById('gameContainer');
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
 
-const padding = 20; // Change this value to set the desired padding
-canvas.width = window.innerWidth - padding * 2;
-canvas.height = Math.min(window.innerHeight - padding * 2, 400);
+  const padding = 0; // Adjust this value for the desired padding
 
+  const targetAspectRatio = 4 / 3; // Desired aspect ratio (e.g., 4:3)
+  const containerAspectRatio = (containerWidth - 2 * padding) / (containerHeight - 2 * padding);
+
+  if (containerAspectRatio > targetAspectRatio) {
+    canvas.height = containerHeight - 2 * padding;
+    canvas.width = (containerHeight - 2 * padding) * targetAspectRatio;
+  } else {
+    canvas.width = containerWidth - 2 * padding;
+    canvas.height = (containerWidth - 2 * padding) / targetAspectRatio;
+  }
+
+  canvas.style.padding = `${padding}px`;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+
+// Update the canvas size when the window is resized
+window.addEventListener('resize', resizeCanvas);
 
 function handleDeviceOrientation(event) {
   const beta = event.beta; // Rotation around X-axis (-180, 180)
