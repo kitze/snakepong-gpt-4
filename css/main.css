@@ -5,7 +5,11 @@ body {
   height: 100vh;
   margin: 0;
   background-color: #000;
+
+  font-family: 'Press Start 2P', cursive;
 }
+
+
 
 #gameOverBanner {
   position: absolute;
@@ -42,7 +46,7 @@ body {
 }
 
 #controls > div {
-  margin-bottom: 5px;
+  margin-bottom: 30px;
 }
 
 
