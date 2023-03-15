@@ -7,6 +7,26 @@ body {
   background-color: #000;
 }
 
+#gameOverBanner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  display: none; /* Hide the banner initially */
+}
+
+#restartButton {
+  background-color: white;
+  color: black;
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+
 #gameContainer {
   display: flex;
   flex-direction: column;

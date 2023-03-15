@@ -16,22 +16,81 @@ let snake = [
 let dx = 10;
 let dy = 0;
 
-// Main game loop
-function gameLoop() {
+const obstacles = [];
 
+function createObstacle() {
+  const obstacle = {
+    x: Math.floor(Math.random() * (canvas.width / 10)) * 10,
+    y: Math.floor(Math.random() * (canvas.height / 10)) * 10,
+    type: Math.random() > 0.5 ? "bomb" : "ramp",
+  };
+
+  obstacles.push(obstacle);
+}
+
+function drawObstacles() {
+  obstacles.forEach((obstacle) => {
+    ctx.fillStyle = obstacle.type === "bomb" ? "red" : "blue";
+    ctx.fillRect(obstacle.x, obstacle.y, 10, 10);
+  });
+}
+
+function checkSnakeObstacleCollision() {
+  const head = snake[0];
+
+  obstacles.forEach((obstacle) => {
+    if (head.x === obstacle.x && head.y === obstacle.y) {
+      if (obstacle.type === "bomb") {
+        // If the snake collides with a bomb, it's game over
+        gameOver();
+      } else {
+        // If the snake collides with a ramp, it jumps to the opposite side
+        if (dx !== 0) {
+          head.x = canvas.width - head.x;
+        } else {
+          head.y = canvas.height - head.y;
+        }
+      }
+    }
+  });
+}
+
+
+// Main game loop
+let lastRender = performance.now();
+let lastObstacleSpawn = performance.now();
+
+function gameLoop(timestamp) {
   const gameSpeed = gameSpeedInput.value;
-  const snakeSpeed = 100 - gameSpeed * 8;
+  const score = parseInt(scoreDisplay.textContent);
+  const snakeSpeed = Math.max(20, 120 - score * 2 - gameSpeed * 8);
   const ballSpeed = parseFloat(gameSpeed) * 0.5;
 
-  setTimeout(() => {
+  // Calculate the time since the last render
+  const deltaTime = timestamp - lastRender;
+
+  if (deltaTime >= snakeSpeed) {
     clearCanvas();
     drawSnake();
     moveSnake();
     drawBall();
-    moveBall(ballSpeed);
+    moveBall(timestamp);
+    drawObstacles();
     checkBallSnakeCollision();
-    gameLoop();
-  }, snakeSpeed);
+    checkSnakeObstacleCollision();
+
+    // Update the last render timestamp
+    lastRender = timestamp;
+  }
+
+  // Spawn a new obstacle every 5 seconds
+  if (timestamp - lastObstacleSpawn >= 5000) {
+    createObstacle();
+    lastObstacleSpawn = timestamp;
+  }
+
+  // Use requestAnimationFrame for the game loop
+  requestAnimationFrame(gameLoop);
 }
 
 // Clear the canvas
@@ -52,10 +111,42 @@ function drawSnake() {
   }
 }
 
+
+const restartButton = document.getElementById("restartButton");
+restartButton.addEventListener("click", restartGame);
+
+function restartGame() {
+  // Hide the game over banner
+  const gameOverBanner = document.getElementById("gameOverBanner");
+  gameOverBanner.style.display = "none";
+
+  // Reset the game state
+  snake = [
+    { x: 200, y: 200 },
+    { x: 190, y: 200 },
+    { x: 180, y: 200 },
+    { x: 170, y: 200 },
+    { x: 160, y: 200 },
+  ];
+  dx = 10;
+  dy = 0;
+  obstacles.length = 0;
+  scoreDisplay.textContent = "0";
+  ball.x = canvas.width / 2;
+  ball.y = canvas.height / 2;
+  ball.dx = 4;
+  ball.dy = 4;
+}
+
 // Move the snake
 function gameOver() {
-  alert("Game Over");
-  location.reload();
+  // Show the game over banner
+  const gameOverBanner = document.getElementById("gameOverBanner");
+  gameOverBanner.style.display = "block";
+
+  // Display the final score
+  const finalScore = document.getElementById("finalScore");
+  finalScore.textContent = scoreDisplay.textContent;
 }
 
 function moveSnake() {
@@ -84,10 +175,17 @@ function drawBall() {
   ctx.closePath();
 }
 
-// Move the ball
-function moveBall(speedMultiplier) {
-  ball.x += ball.dx * speedMultiplier;
-  ball.y += ball.dy * speedMultiplier;
+let lastBallUpdate = performance.now();
+
+function moveBall(timestamp) {
+  const gameSpeed = gameSpeedInput.value;
+  const ballSpeed = parseFloat(gameSpeed) * 2.5;
+
+  // Calculate the time since the last ball update
+  const deltaTime = timestamp - lastBallUpdate;
+
+  ball.x += ball.dx * ballSpeed * deltaTime / 1000;
+  ball.y += ball.dy * ballSpeed * deltaTime / 1000;
 
   // Check for wall collisions
   if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
@@ -97,6 +195,9 @@ function moveBall(speedMultiplier) {
   if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
     ball.dy = -ball.dy;
   }
+
+  // Update the last ball update timestamp
+  lastBallUpdate = timestamp;
 }
 
 
@@ -121,7 +222,9 @@ function checkBallSnakeCollision() {
     scoreDisplay.textContent = parseInt(scoreDisplay.textContent) + 1;
   }
 }
-document.addEventListener('keydown', changeDirection);
+
+document.addEventListener("keydown", changeDirection);
+requestAnimationFrame(gameLoop);
 
 function changeDirection(event) {
   const LEFT_KEY = 37;
