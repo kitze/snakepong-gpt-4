@@ -23,76 +23,8 @@
   <link rel="stylesheet" href="css/main.css">
 
   <meta name="theme-color" content="#fafafa">
-
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
-  <script>
-    // Feature detection for DeviceMotionEvent and DeviceOrientationEvent
-
-    let gyroscopeEnabled = false;
-
-    if (
-      typeof DeviceMotionEvent.requestPermission === "function" ||
-      typeof DeviceOrientationEvent.requestPermission === "function"
-    ) {
-      document.addEventListener("DOMContentLoaded", () => {
-        const button = document.createElement("button");
-        button.textContent = "Enable Gyroscope Controls";
-        button.style.position = "fixed";
-        button.style.bottom = "20px";
-        button.style.left = "50%";
-        button.style.transform = "translateX(-50%)";
-        button.style.zIndex = "9999";
-        button.onclick = requestGyroscopeAccess;
-        document.body.appendChild(button);
-      });
-
-      function requestGyroscopeAccess() {
-        if (gyroscopeEnabled) {
-          // If gyroscope controls are enabled, remove the event listeners and update the button text
-          window.removeEventListener("devicemotion", handleDeviceMotion);
-          window.removeEventListener("deviceorientation", handleDeviceOrientation);
-          gyroscopeEnabled = false;
-          button.textContent = "Enable Gyroscope Controls";
-        } else {
-          // If gyroscope controls are disabled, request permission and add the event listeners
-          if (typeof DeviceMotionEvent.requestPermission === "function") {
-            DeviceMotionEvent.requestPermission()
-              .then((permissionState) => {
-                if (permissionState === "granted") {
-                  window.addEventListener("devicemotion", handleDeviceMotion);
-                }
-              })
-              .catch(console.error);
-          }
-
-          if (typeof DeviceOrientationEvent.requestPermission === "function") {
-            DeviceOrientationEvent.requestPermission()
-              .then((permissionState) => {
-                if (permissionState === "granted") {
-                  window.addEventListener("deviceorientation", handleDeviceOrientation);
-                }
-              })
-              .catch(console.error);
-          }
-
-          // If the device does not require permission, add the event listeners directly
-          if (
-            typeof DeviceMotionEvent.requestPermission !== "function" &&
-            typeof DeviceOrientationEvent.requestPermission !== "function"
-          ) {
-            window.addEventListener("devicemotion", handleDeviceMotion);
-            window.addEventListener("deviceorientation", handleDeviceOrientation);
-          }
-
-          gyroscopeEnabled = true;
-          button.textContent = "Disable Gyroscope Controls";
-        }
-      }    } else {
-      // Add event listeners directly for devices that don't require permission
-      window.addEventListener("devicemotion", handleDeviceMotion);
-      window.addEventListener("deviceorientation", handleDeviceOrientation);
-    }
-  </script>
 </head>
 
 <body>
@@ -102,7 +34,18 @@
     <div class="title">SnakePong</div>
     <a href="https://twitter.com/thekitze" class="kitze">by @thekitze</a>
   </div>
+
   <canvas id="gameCanvas" width="640" height="480"></canvas>
+
+
+  <div id="highScoresModal" class="modal">
+    <div class="modal-content">
+      <span id="closeHighScoresModal" class="close">&times;</span>
+      <h2>High Scores</h2>
+      <ul id="highScoresList"></ul>
+    </div>
+  </div>
+
   <div id="touchAreaUp" class="touchArea"></div>
   <div id="touchAreaDown" class="touchArea"></div>
   <div id="touchAreaLeft" class="touchArea"></div>
@@ -117,6 +60,10 @@
       <label for="score">Score:</label>
       <span id="score">0</span>
     </div>
+
+    <button id="showHighScoresButton">High Scores</button>
+
+
 <!--    <label for="gameSpeed">Game Speed:</label>-->
 <!--    <input type="range" id="gameSpeed" name="gameSpeed" min="1" max="10" value="5">-->
   </div>

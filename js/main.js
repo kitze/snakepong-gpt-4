@@ -149,6 +149,13 @@ function restartGame() {
 }
 let isGameOver = false;
 
+//append to array of high scores
+function logHighScoreToLocalStorage(score) {
+  const scores = JSON.parse(localStorage.getItem("highScores")) || [];
+  scores.push(score);
+  localStorage.setItem("highScores", JSON.stringify(scores));
+}
+
 // Move the snake
 function gameOver() {
   isGameOver = true;
@@ -159,8 +166,11 @@ function gameOver() {
   gameOverBanner.style.display = "block";
 
   // Display the final score
+
   const finalScore = document.getElementById("finalScore");
   finalScore.textContent = scoreDisplay.textContent;
+  logHighScoreToLocalStorage(scoreDisplay.textContent);
+
 }
 function moveSnake() {
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
@@ -281,29 +291,6 @@ resizeCanvas();
 // Update the canvas size when the window is resized
 window.addEventListener('resize', resizeCanvas);
 
-function handleDeviceOrientation(event) {
-  const beta = event.beta; // Rotation around X-axis (-180, 180)
-  const gamma = event.gamma; // Rotation around Y-axis (-90, 90)
-
-  // Threshold for detecting a significant change in orientation
-  const threshold = 15;
-
-  // Determine the new direction based on the device orientation
-  if (gamma > threshold) {
-    changeDirection("RIGHT");
-  } else if (gamma < -threshold) {
-    changeDirection("LEFT");
-  } else if (beta > threshold) {
-    changeDirection("DOWN");
-  } else if (beta < -threshold) {
-    changeDirection("UP");
-  }
-}
-
-
-window.addEventListener("deviceorientation", handleDeviceOrientation);
-
-
 document.addEventListener("keydown", (event) => {
   const keyPressed = event.keyCode;
 
@@ -365,3 +352,92 @@ function changeDirection(direction) {
 }
 
 gameLoop();
+
+const showHighScoresButton = document.getElementById("showHighScoresButton");
+const highScoresModal = document.getElementById("highScoresModal");
+const closeHighScoresModal = document.getElementById("closeHighScoresModal");
+const highScoresList = document.getElementById("highScoresList");
+
+function showHighScores() {
+  highScoresModal.style.display = "block";
+  displayHighScores();
+}
+
+function hideHighScores() {
+  highScoresModal.style.display = "none";
+}
+
+function displayHighScores() {
+  const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+  highScoresList.innerHTML = "";
+
+  //limit to 10 high scores, sort from highest to lowest, remove 0, display unique scores
+  const filtered = highScores.filter((score, index, self) => {
+    return index === self.indexOf(score);
+  }).sort((a, b) => b - a).slice(0, 10);
+
+  filtered.forEach((score, index) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = `#${index + 1}: ${score}`;
+    highScoresList.appendChild(listItem);
+  });
+}
+
+showHighScoresButton.addEventListener("click", showHighScores);
+closeHighScoresModal.addEventListener("click", hideHighScores);
+window.addEventListener("click", (event) => {
+  if (event.target === highScoresModal) {
+    hideHighScores();
+  }
+});
+
+let touchStartX = null;
+let touchStartY = null;
+let touchEndX = null;
+let touchEndY = null;
+const swipeThreshold = 50;
+
+function handleTouchStart(event) {
+  touchStartX = event.touches[0].clientX;
+  touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchMove(event) {
+  touchEndX = event.touches[0].clientX;
+  touchEndY = event.touches[0].clientY;
+}
+
+function handleTouchEnd() {
+  if (touchStartX === null || touchStartY === null || touchEndX === null || touchEndY === null) {
+    return;
+  }
+
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Horizontal swipe
+    if (deltaX > swipeThreshold) {
+      changeDirection("RIGHT");
+    } else if (deltaX < -swipeThreshold) {
+      changeDirection("LEFT");
+    }
+  } else {
+    // Vertical swipe
+    if (deltaY > swipeThreshold) {
+      changeDirection("DOWN");
+    } else if (deltaY < -swipeThreshold) {
+      changeDirection("UP");
+    }
+  }
+
+  // Reset touch coordinates
+  touchStartX = null;
+  touchStartY = null;
+  touchEndX = null;
+  touchEndY = null;
+}
+
+document.addEventListener("touchstart", handleTouchStart);
+document.addEventListener("touchmove", handleTouchMove);
+document.addEventListener("touchend", handleTouchEnd);
