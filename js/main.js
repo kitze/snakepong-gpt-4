@@ -61,6 +61,9 @@ let lastRender = performance.now();
 let lastObstacleSpawn = performance.now();
 
 function gameLoop(timestamp) {
+  if (isGameOver) {
+    return; // Do not update the game state when the game is over
+  }
   const gameSpeed = gameSpeedInput.value;
   const score = parseInt(scoreDisplay.textContent);
   const snakeSpeed = Math.max(20, 120 - score * 2 - gameSpeed * 8);
@@ -136,10 +139,21 @@ function restartGame() {
   ball.y = canvas.height / 2;
   ball.dx = 4;
   ball.dy = 4;
+
+  // Reset the game over state and lastRender
+  isGameOver = false;
+  lastRender = performance.now();
+
+  // Restart the game loop
+  requestAnimationFrame(gameLoop);
 }
+let isGameOver = false;
 
 // Move the snake
 function gameOver() {
+  isGameOver = true;
+  clearCanvas();
+
   // Show the game over banner
   const gameOverBanner = document.getElementById("gameOverBanner");
   gameOverBanner.style.display = "block";
@@ -148,7 +162,6 @@ function gameOver() {
   const finalScore = document.getElementById("finalScore");
   finalScore.textContent = scoreDisplay.textContent;
 }
-
 function moveSnake() {
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
