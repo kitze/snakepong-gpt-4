@@ -1,0 +1,36 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #000;
+}
+
+#gameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  color: #fff;
+}
+
+#controls > div {
+  margin-bottom: 5px;
+}
+
+
+canvas {
+  border: 1px solid #fff;
+}
+
+#controls {
+  margin-top: 10px;
+  color: #fff;
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+
+<div id="gameContainer">
+  <canvas id="gameCanvas" width="640" height="480"></canvas>
+  <div id="controls">
+    <div>
+      <label for="score">Score:</label>
+      <span id="score">0</span>
+    </div>
+    <label for="gameSpeed">Game Speed:</label>
+    <input type="range" id="gameSpeed" name="gameSpeed" min="1" max="10" value="5">
+  </div>
+</div>
+  <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
