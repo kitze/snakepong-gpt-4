@@ -64,7 +64,7 @@ function gameLoop(timestamp) {
   if (isGameOver) {
     return; // Do not update the game state when the game is over
   }
-  const gameSpeed = gameSpeedInput.value;
+  const gameSpeed = getGameSpeed();
   const score = parseInt(scoreDisplay.textContent);
   const snakeSpeed = Math.max(20, 120 - score * 2 - gameSpeed * 8);
   const ballSpeed = parseFloat(gameSpeed) * 0.5;
@@ -190,8 +190,15 @@ function drawBall() {
 
 let lastBallUpdate = performance.now();
 
+let FIXED_GAME_SPEED = 5;
+
+const getGameSpeed = () => {
+  // return gameSpeedInput.value
+
+  return FIXED_GAME_SPEED;
+}
 function moveBall(timestamp) {
-  const gameSpeed = gameSpeedInput.value;
+  const gameSpeed = getGameSpeed();
   const ballSpeed = parseFloat(gameSpeed) * 2.5;
 
   // Calculate the time since the last ball update
@@ -236,41 +243,103 @@ function checkBallSnakeCollision() {
   }
 }
 
-document.addEventListener("keydown", changeDirection);
+const LEFT_KEY = 37;
+const UP_KEY = 38;
+const RIGHT_KEY = 39;
+const DOWN_KEY = 40;
+const A_KEY = 65;
+const W_KEY = 87;
+const D_KEY = 68;
+const S_KEY = 83;
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth - padding * 2;
+  canvas.height = Math.min(window.innerHeight - padding * 2, 400);
+});
+
+const padding = 20; // Change this value to set the desired padding
+canvas.width = window.innerWidth - padding * 2;
+canvas.height = Math.min(window.innerHeight - padding * 2, 400);
+
+
+function handleDeviceOrientation(event) {
+  const beta = event.beta; // Rotation around X-axis (-180, 180)
+  const gamma = event.gamma; // Rotation around Y-axis (-90, 90)
+
+  // Threshold for detecting a significant change in orientation
+  const threshold = 15;
+
+  // Determine the new direction based on the device orientation
+  if (gamma > threshold) {
+    changeDirection("RIGHT");
+  } else if (gamma < -threshold) {
+    changeDirection("LEFT");
+  } else if (beta > threshold) {
+    changeDirection("DOWN");
+  } else if (beta < -threshold) {
+    changeDirection("UP");
+  }
+}
+
+
+window.addEventListener("deviceorientation", handleDeviceOrientation);
+
+
+document.addEventListener("keydown", (event) => {
+  const keyPressed = event.keyCode;
+
+  if ((keyPressed === LEFT_KEY || keyPressed === A_KEY)) {
+    changeDirection("LEFT");
+  }
+
+  if ((keyPressed === UP_KEY || keyPressed === W_KEY)) {
+    changeDirection("UP");
+  }
+
+  if ((keyPressed === RIGHT_KEY || keyPressed === D_KEY)) {
+    changeDirection("RIGHT");
+  }
+
+  if ((keyPressed === DOWN_KEY || keyPressed === S_KEY)) {
+    changeDirection("DOWN");
+  }
+});
+
+// const touchAreaUp = document.getElementById("touchAreaUp");
+// const touchAreaDown = document.getElementById("touchAreaDown");
+// const touchAreaLeft = document.getElementById("touchAreaLeft");
+// const touchAreaRight = document.getElementById("touchAreaRight");
+//
+// touchAreaUp.addEventListener("touchstart", () => changeDirection("UP"));
+// touchAreaDown.addEventListener("touchstart", () => changeDirection("DOWN"));
+// touchAreaLeft.addEventListener("touchstart", () => changeDirection("LEFT"));
+// touchAreaRight.addEventListener("touchstart", () => changeDirection("RIGHT"));
+
+
 requestAnimationFrame(gameLoop);
 
-function changeDirection(event) {
-  const LEFT_KEY = 37;
-  const RIGHT_KEY = 39;
-  const UP_KEY = 38;
-  const DOWN_KEY = 40;
-  const A_KEY = 65;
-  const D_KEY = 68;
-  const W_KEY = 87;
-  const S_KEY = 83;
-
-  const keyPressed = event.keyCode;
+function changeDirection(direction) {
   const goingUp = dy === -10;
   const goingDown = dy === 10;
   const goingRight = dx === 10;
   const goingLeft = dx === -10;
 
-  if ((keyPressed === LEFT_KEY || keyPressed === A_KEY) && !goingRight) {
+  if (direction === "LEFT" && !goingRight) {
     dx = -10;
     dy = 0;
   }
 
-  if ((keyPressed === UP_KEY || keyPressed === W_KEY) && !goingDown) {
+  if (direction === "UP" && !goingDown) {
     dx = 0;
     dy = -10;
   }
 
-  if ((keyPressed === RIGHT_KEY || keyPressed === D_KEY) && !goingLeft) {
+  if (direction === "RIGHT" && !goingLeft) {
     dx = 10;
     dy = 0;
   }
 
-  if ((keyPressed === DOWN_KEY || keyPressed === S_KEY) && !goingUp) {
+  if (direction === "DOWN" && !goingUp) {
     dx = 0;
     dy = 10;
   }
